@@ -1,97 +1,233 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Host App - React Native Micro Frontend
 
-# Getting Started
+Este é o aplicativo **Host** de uma arquitetura de micro frontends React Native, construído com [React Native](https://reactnative.dev) e [Module Federation](https://module-federation.io/) usando [@callstack/repack](https://re-pack.dev/).
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+> **🚨 IMPORTANTE**: Para testar o Host App completo, é **obrigatório** executar o micro app Contas simultaneamente. Sem o micro app rodando, algumas funcionalidades não estarão disponíveis.
 
-## Step 1: Start Metro
+## 🏗️ Arquitetura
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+### Micro Frontend Architecture
+- **Host App**: Aplicativo principal que orquestra e carrega micro frontends
+- **Micro Apps**: Aplicações independentes carregadas dinamicamente
+  - `Contas`: Micro app para funcionalidades relacionadas a conta e saldo
+    - Repositório: [https://github.com/drbf17/Contas-MicroApp](https://github.com/drbf17/Contas-MicroApp)
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+### Tecnologias Principais
+- **React Native** 0.79.5
+- **React** 19.0.0
+- **@callstack/repack** 5.1.3 (Module Federation)
+- **@react-navigation/native-stack** 7.3.21
+- **react-native-bottom-tabs** 0.9.2 (Native bottom tabs)
 
-```sh
-# Using npm
+## 📱 Estrutura do App
+
+### Navegação
+```
+MainNavigator (Stack)
+├── HomeTabs (Bottom Tabs)
+│   ├── HomeNavigator
+│   ├── AccountNavigator
+│   └── ServicesNavigator
+└── ContaServices (Micro Frontend)
+```
+
+### Principais Telas
+- **Home**: Tela inicial do aplicativo
+- **Account**: Integração com componente `Saldo` do micro app Contas
+- **Services**: Tela com card para navegar para serviços de conta
+- **ContaServices**: Carrega o micro app `Contas/Services`
+
+## 🚀 Getting Started
+
+### Pré-requisitos
+- Node.js >= 18
+- React Native CLI
+- Android Studio (para Android)
+- Xcode (para iOS)
+- CocoaPods (para iOS)
+
+### Instalação
+
+1. **Clone o repositório**
+```bash
+git clone https://github.com/drbf17/Host.git
+cd Host
+```
+
+2. **Instale as dependências**
+```bash
+npm install
+# ou
+yarn install
+```
+
+3. **Instale dependências iOS** (apenas para iOS)
+```bash
+cd ios
+bundle install
+bundle exec pod install
+cd ..
+```
+
+### Configuração de Ambiente
+
+O projeto usa variáveis de ambiente para configurar URLs dos micro frontends:
+
+1. **Arquivo de ambiente**: `env/.env.development`
+```bash
+CONTA_MINI_APP_URL=http://localhost:8082
+```
+
+2. **Configuração do Micro App Contas**
+   
+   > **🔥 OBRIGATÓRIO**: O micro app Contas deve estar rodando para que o Host funcione corretamente!
+   
+   Para executar este projeto, você precisa também configurar e executar o micro app Contas:
+   
+   ```bash
+   # Clone o micro app Contas
+   git clone https://github.com/drbf17/Contas-MicroApp.git
+   cd Contas-MicroApp
+   
+   # Instale as dependências
+   npm install
+   
+   # Execute o micro app na porta 8082
+   npm start
+   ```
+   
+   **Confirme que o micro app está rodando** acessando: `http://localhost:8082`
+
+### Executando o Projeto
+
+> **⚠️ PRÉ-REQUISITO OBRIGATÓRIO**: 
+> 1. **PRIMEIRO** execute o micro app Contas na porta 8082
+> 2. **DEPOIS** execute o Host App
+> 
+> **Sem o micro app Contas rodando, o Host App terá funcionalidades limitadas!**
+
+#### 1. Inicie o Metro Bundler
+```bash
 npm start
-
-# OR using Yarn
+# ou
 yarn start
 ```
 
-## Step 2: Build and run your app
+#### 2. Execute o app
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
+**Android:**
+```bash
 npm run android
-
-# OR using Yarn
+# ou
 yarn android
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+**iOS:**
+```bash
 npm run ios
-
-# OR using Yarn
+# ou
 yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## 🔧 Configuração de Micro Frontends
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+### Module Federation (rspack.config.mjs)
+```javascript
+remotes: {
+  Contas: `Contas@${process.env.CONTA_MINI_APP_URL}/${platform}/mf-manifest.json`,
+}
+```
 
-## Step 3: Modify your app
+### Dependências Compartilhadas
+As seguintes dependências são compartilhadas entre Host e micro apps:
+- React
+- React Native
+- React Navigation
+- React Native Bottom Tabs
 
-Now that you have successfully run the app, let's make changes!
+### Configuração de Porta para Android
+Para desenvolvimento Android, configure o port forwarding:
+```bash
+adb reverse tcp:8082 tcp:8082
+```
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## 📂 Estrutura de Pastas
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+```
+src/
+├── app/
+│   ├── App.tsx                 # Componente principal
+│   └── navigation/
+│       └── MainNavigator.tsx   # Navegação principal
+├── home/
+│   ├── navigation/             # Navegadores das tabs
+│   ├── screens/               # Telas principais
+│   └── components/            # Componentes reutilizáveis
+└── conta/
+    └── ContaScreen.tsx        # Tela de integração com micro app
+```
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+## 🧪 Desenvolvimento com Micro Frontends
 
-## Congratulations! :tada:
+### Carregamento de Componentes
+```tsx
+// Carregamento lazy de componente do micro app
+const Saldo = React.lazy(() => import('Contas/components/saldo'));
 
-You've successfully run and modified your React Native App. :partying_face:
+// Uso com Suspense e ErrorBoundary
+<ErrorBoundary name="AccountScreen">
+    <React.Suspense fallback={<Placeholder label="Carregando..." />}>
+        <Saldo 
+            value={2580.75}
+            currency="BRL"
+            isVisible={isVisible}
+            onToggle={toggleVisibility}
+            title="Saldo disponível"
+        />
+    </React.Suspense>
+</ErrorBoundary>
+```
 
-### Now what?
+### Navegação Entre Apps
+```tsx
+// Navegação para micro frontend
+const handleNavigateToContaServices = () => {
+    const parentNavigation = navigation.getParent();
+    if (parentNavigation) {
+        parentNavigation.navigate('ContaServices');
+    }
+};
+```
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+## 🛠️ Troubleshooting
 
-# Troubleshooting
+### Problemas Comuns
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+1. **Module Federation não carrega / Erro "Element type is invalid"**
+   - **🔴 CAUSA MAIS COMUM**: Micro app Contas não está rodando!
+   - **✅ SOLUÇÃO**: Verifique se o micro app está rodando na porta 8082: `curl http://localhost:8082`
+   - Confirme se as variáveis de ambiente estão corretas
+   - Verifique o port forwarding no Android: `adb reverse tcp:8082 tcp:8082`
 
-# Learn More
+2. **Erro de navegação**
+   - Confirme se os tipos de navegação estão corretos
+   - Verifique se a estrutura de navegadores aninhados está correta
 
-To learn more about React Native, take a look at the following resources:
+3. **Dependências não compartilhadas**
+   - Verifique se as versões das dependências estão alinhadas
+   - Confirme a configuração de `shared` no rspack.config.mjs
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+## 📚 Recursos Adicionais
+
+- [Re.Pack Documentation](https://re-pack.dev/)
+- [Module Federation](https://module-federation.io/)
+- [React Navigation](https://reactnavigation.org/)
+- [React Native Bottom Tabs](https://github.com/react-navigation/react-navigation/tree/main/packages/bottom-tabs)
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie sua feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit suas mudanças (`git commit -m 'Add amazing feature'`)
+4. Push para a branch (`git push origin feature/amazing-feature`)
+5. Abra um Pull Request
