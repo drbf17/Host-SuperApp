@@ -13,6 +13,17 @@ export type MainStackParamList = {
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
+// Componente separado para evitar função inline
+const HomeTabsScreen = () => (
+  <ErrorBoundary name="Home Module">
+    <React.Suspense 
+      fallback={<Placeholder label="Carregando Home..." />}
+    >
+      <HomeTabNavigator />
+    </React.Suspense>
+  </ErrorBoundary>
+);
+
 const MainNavigator = () => {
   return (
     <Stack.Navigator
@@ -21,15 +32,7 @@ const MainNavigator = () => {
       }}>
       <Stack.Screen
         name="HomeTabs"
-        component={() => (
-          <ErrorBoundary name="Home Module">
-            <React.Suspense 
-              fallback={<Placeholder label="Carregando Home..." />}
-            >
-              <HomeTabNavigator />
-            </React.Suspense>
-          </ErrorBoundary>
-        )}
+        component={HomeTabsScreen}
       />
     </Stack.Navigator>
   );
