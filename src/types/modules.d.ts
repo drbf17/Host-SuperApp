@@ -1,4 +1,12 @@
 // Type declarations for micro frontend modules
+
+// Declarações para o micro app Home
+declare module 'Home/App' {
+  const App: React.ComponentType<any>;
+  export default App;
+}
+
+// Declarações para o micro app Contas
 declare module 'Contas/components/saldo' {
   const Saldo: React.ComponentType<any>;
   export default Saldo;

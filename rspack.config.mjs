@@ -44,6 +44,7 @@ export default env => {
         filename: 'Host.container.js.bundle',
         remotes: {
           Contas: `Contas@${process.env.CONTA_MINI_APP_URL}/${platform}/mf-manifest.json`,
+          Home: `Home@${process.env.HOME_MINI_APP_URL}/${platform}/mf-manifest.json`,
         },
         dts: false,
         shared: {
@@ -86,17 +87,15 @@ export default env => {
             requiredVersion: '^2.5.2',
             version: '2.5.2',
           },
-          'react-native-bottom-tabs': {
+          '@bottom-tabs/react-navigation': {
             singleton: true,
             eager: true,
             requiredVersion: '^0.9.2',
-            version: '0.9.2',
           },
           'react-native-bottom-tabs': {
             singleton: true,
             eager: true,
-            requiredVersion: '^0.9.2',
-            version: '0.9.2',
+            requiredVersion: '0.9.0',
           },
         },
       }),
