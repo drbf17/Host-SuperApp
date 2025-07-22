@@ -15,6 +15,17 @@ const ServicesScreen = () => {
         }
     };
 
+    const handleNavigateToHostContainer = (componentName: string, title: string) => {
+        // Navegar para HostContainer com componente dinâmico
+        const parentNavigation = navigation.getParent();
+        if (parentNavigation) {
+            (parentNavigation as any).navigate('HostContainer', {
+                componentName,
+                title: `Carregando ${title}...`
+            });
+        }
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Serviços</Text>
@@ -31,6 +42,48 @@ const ServicesScreen = () => {
                         Gerencie seu saldo, extrato e demais funcionalidades da sua conta
                     </Text>
                     <Text style={styles.cardAction}>Acessar →</Text>
+                </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+                style={[styles.card, { backgroundColor: '#e8f5e8' }]} 
+                onPress={() => handleNavigateToHostContainer('Services', 'Serviços Dinâmicos')}
+                activeOpacity={0.7}
+            >
+                <View style={styles.cardContent}>
+                    <Text style={[styles.cardTitle, { color: '#059669' }]}>Container Dinâmico</Text>
+                    <Text style={styles.cardDescription}>
+                        Exemplo de carregamento dinâmico de componente micro frontend
+                    </Text>
+                    <Text style={[styles.cardAction, { color: '#059669' }]}>Testar →</Text>
+                </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+                style={[styles.card, { backgroundColor: '#fef3cd' }]} 
+                onPress={() => handleNavigateToHostContainer('ExtratoScreen', 'Tela de Extrato')}
+                activeOpacity={0.7}
+            >
+                <View style={styles.cardContent}>
+                    <Text style={[styles.cardTitle, { color: '#d97706' }]}>Extrato Dinâmico</Text>
+                    <Text style={styles.cardDescription}>
+                        Carregamento dinâmico da tela de extrato
+                    </Text>
+                    <Text style={[styles.cardAction, { color: '#d97706' }]}>Carregar →</Text>
+                </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+                style={[styles.card, { backgroundColor: '#e0e7ff' }]} 
+                onPress={() => handleNavigateToHostContainer('CartaoTipoScreen', 'Configuração de Cartão')}
+                activeOpacity={0.7}
+            >
+                <View style={styles.cardContent}>
+                    <Text style={[styles.cardTitle, { color: '#4f46e5' }]}>Cartão Dinâmico</Text>
+                    <Text style={styles.cardDescription}>
+                        Tela de configuração de cartão carregada dinamicamente
+                    </Text>
+                    <Text style={[styles.cardAction, { color: '#4f46e5' }]}>Configurar →</Text>
                 </View>
             </TouchableOpacity>
         </View>
