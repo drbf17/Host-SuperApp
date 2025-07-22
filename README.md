@@ -1,14 +1,16 @@
-# Host App - React Native Micro Frontend
+# Host App - React Native SuperApp Architecture
 
-Este é o aplicativo **Host** de uma arquitetura de micro frontends React Native, construído com [React Native](https://reactnative.dev) e [Module Federation](https://module-federation.io/) usando [@callstack/repack](https://re-pack.dev/).
+Este é o aplicativo **Host** de uma arquitetura de SuperApp React Native, construído com [React Native](https://reactnative.dev) e [Module Federation](https://module-federation.io/) usando [@callstack/repack](https://re-pack.dev/).
 
-> **🚨 IMPORTANTE**: Para testar o Host App completo, é **obrigatório** executar o micro app Contas simultaneamente. Sem o micro app rodando, algumas funcionalidades não estarão disponíveis.
+> **🚨 IMPORTANTE**: Para testar o Host App completo, é **obrigatório** executar os micro apps **Home** e **Contas** simultaneamente. Sem os micro apps rodando, algumas funcionalidades não estarão disponíveis.
 
-## 🏗️ Arquitetura
+## 🏗️ Arquitetura SuperApp
 
 ### Micro Frontend Architecture
 - **Host App**: Aplicativo principal que orquestra e carrega micro frontends
 - **Micro Apps**: Aplicações independentes carregadas dinamicamente
+  - `Home`: Módulo principal com interface bancária, navegação e integração de serviços
+    - Repositório: [https://github.com/drbf17/Home-Micro-App](https://github.com/drbf17/Home-Micro-App)
   - `Contas`: Micro app para funcionalidades relacionadas a conta e saldo
     - Repositório: [https://github.com/drbf17/Contas-MicroApp](https://github.com/drbf17/Contas-MicroApp)
 
@@ -24,18 +26,22 @@ Este é o aplicativo **Host** de uma arquitetura de micro frontends React Native
 ### Navegação
 ```
 MainNavigator (Stack)
-├── HomeTabs (Bottom Tabs)
-│   ├── HomeNavigator
-│   ├── AccountNavigator
-│   └── ServicesNavigator
-└── ContaServices (Micro Frontend)
+├── Home (Lazy Loaded from Home Micro App)
+│   └── HomeTabNavigator (Bottom Tabs)
+│       ├── Home (Banking Dashboard)
+│       ├── Account (Account Details)
+│       └── Services (Services List + Remote Components)
+│           └── RemoteHostScreen (Loads Contas components)
+└── ContaServices (Direct Contas Integration)
 ```
 
 ### Principais Telas
-- **Home**: Tela inicial do aplicativo
-- **Account**: Integração com componente `Saldo` do micro app Contas
-- **Services**: Tela com card para navegar para serviços de conta
-- **ContaServices**: Carrega o micro app `Contas/Services`
+- **App.tsx**: Orquestrador principal com lazy loading do módulo Home
+- **Home Micro App**: Interface bancária completa com:
+  - **Dashboard**: Saldo, transações recentes, ações rápidas
+  - **Account**: Detalhes da conta do usuário
+  - **Services**: Lista de serviços bancários + componentes remotos do Contas
+- **ContaServices**: Integração direta com o micro app Contas
 
 ## 🚀 Getting Started
 
@@ -75,15 +81,30 @@ O projeto usa variáveis de ambiente para configurar URLs dos micro frontends:
 
 1. **Arquivo de ambiente**: `env/.env.development`
 ```bash
-CONTA_MINI_APP_URL=http://localhost:8082
+HOME_MINI_APP_URL=http://localhost:9002
+CONTA_MINI_APP_URL=http://localhost:9003
 ```
 
-2. **Configuração do Micro App Contas**
+2. **Configuração dos Micro Apps**
    
-   > **🔥 OBRIGATÓRIO**: O micro app Contas deve estar rodando para que o Host funcione corretamente!
+   > **🔥 OBRIGATÓRIO**: Os micro apps Home e Contas devem estar rodando para que o Host funcione corretamente!
    
-   Para executar este projeto, você precisa também configurar e executar o micro app Contas:
+   Para executar este projeto, você precisa configurar e executar ambos os micro apps:
    
+   **Micro App Home (Principal):**
+   ```bash
+   # Clone o micro app Home
+   git clone https://github.com/drbf17/Home-Micro-App.git
+   cd Home-Micro-App
+   
+   # Instale as dependências
+   npm install
+   
+   # Execute o micro app na porta 9002
+   npm start
+   ```
+   
+   **Micro App Contas:**
    ```bash
    # Clone o micro app Contas
    git clone https://github.com/drbf17/Contas-MicroApp.git
@@ -92,19 +113,22 @@ CONTA_MINI_APP_URL=http://localhost:8082
    # Instale as dependências
    npm install
    
-   # Execute o micro app na porta 8082
+   # Execute o micro app na porta 9003
    npm start
    ```
    
-   **Confirme que o micro app está rodando** acessando: `http://localhost:8082`
+   **Confirme que os micro apps estão rodando**:
+   - Home: `http://localhost:9002`
+   - Contas: `http://localhost:9003`
 
 ### Executando o Projeto
 
 > **⚠️ PRÉ-REQUISITO OBRIGATÓRIO**: 
-> 1. **PRIMEIRO** execute o micro app Contas na porta 8082
-> 2. **DEPOIS** execute o Host App
+> 1. **PRIMEIRO** execute o micro app Home na porta 9002
+> 2. **SEGUNDO** execute o micro app Contas na porta 9003  
+> 3. **DEPOIS** execute o Host App
 > 
-> **Sem o micro app Contas rodando, o Host App terá funcionalidades limitadas!**
+> **Sem os micro apps Home e Contas rodando, o Host App terá funcionalidades limitadas ou não funcionará!**
 
 #### 1. Inicie o Metro Bundler
 ```bash
@@ -134,21 +158,24 @@ yarn ios
 ### Module Federation (rspack.config.mjs)
 ```javascript
 remotes: {
+  Home: `Home@${process.env.HOME_MINI_APP_URL}/${platform}/mf-manifest.json`,
   Contas: `Contas@${process.env.CONTA_MINI_APP_URL}/${platform}/mf-manifest.json`,
 }
 ```
 
 ### Dependências Compartilhadas
 As seguintes dependências são compartilhadas entre Host e micro apps:
-- React
-- React Native
-- React Navigation
-- React Native Bottom Tabs
+- React 19.0.0
+- React Native 0.79.5
+- React Navigation 7.x
+- React Native Bottom Tabs 0.9.0
+- Module Federation Enhanced
 
 ### Configuração de Porta para Android
 Para desenvolvimento Android, configure o port forwarding:
 ```bash
-adb reverse tcp:8082 tcp:8082
+adb reverse tcp:9002 tcp:9002  # Home micro app
+adb reverse tcp:9003 tcp:9003  # Contas micro app
 ```
 
 ## 📂 Estrutura de Pastas
@@ -156,36 +183,40 @@ adb reverse tcp:8082 tcp:8082
 ```
 src/
 ├── app/
-│   ├── App.tsx                 # Componente principal
+│   ├── App.tsx                 # Orquestrador principal + Lazy loading do Home
 │   └── navigation/
-│       └── MainNavigator.tsx   # Navegação principal
-├── home/
-│   ├── navigation/             # Navegadores das tabs
-│   ├── screens/               # Telas principais
-│   └── components/            # Componentes reutilizáveis
-└── conta/
-    └── ContaScreen.tsx        # Tela de integração com micro app
+│       ├── MainNavigator.tsx   # Navegação principal
+│       └── components/         # ErrorBoundary e Placeholder
+├── external/
+│   └── HostScreen.tsx         # Template para carregamento de micro apps
+└── types/
+    └── module-federation.d.ts # Types para Module Federation
 ```
 
-## 🧪 Desenvolvimento com Micro Frontends
+## 🧪 Desenvolvimento com SuperApp
 
-### Carregamento de Componentes
+### Carregamento de Módulos Principais
 ```tsx
-// Carregamento lazy de componente do micro app
-const Saldo = React.lazy(() => import('Contas/components/saldo'));
+// App.tsx - Carregamento lazy do módulo Home principal
+const HomeApp = React.lazy(() => import('Home/App'));
 
-// Uso com Suspense e ErrorBoundary
-<ErrorBoundary name="AccountScreen">
-    <React.Suspense fallback={<Placeholder label="Carregando..." />}>
-        <Saldo 
-            value={2580.75}
-            currency="BRL"
-            isVisible={isVisible}
-            onToggle={toggleVisibility}
-            title="Saldo disponível"
-        />
+<ErrorBoundary name="Main App">
+    <React.Suspense fallback={<Placeholder label="Carregando SuperApp..." />}>
+        <HomeApp />
     </React.Suspense>
 </ErrorBoundary>
+```
+
+### Carregamento de Componentes Remotos (no Home)
+```tsx
+// Home carrega componentes do Contas dinamicamente
+const ExtratoScreen = React.lazy(() => import('Contas/ExtratoScreen'));
+const ServicesNavigator = React.lazy(() => import('Contas/Services'));
+
+// Uso com Suspense e ErrorBoundary no RemoteHostScreen
+<React.Suspense fallback={<Text>Carregando Extrato...</Text>}>
+    <ExtratoScreen />
+</React.Suspense>
 ```
 
 ### Navegação Entre Apps
@@ -204,14 +235,25 @@ const handleNavigateToContaServices = () => {
 ### Problemas Comuns
 
 1. **Module Federation não carrega / Erro "Element type is invalid"**
-   - **🔴 CAUSA MAIS COMUM**: Micro app Contas não está rodando!
-   - **✅ SOLUÇÃO**: Verifique se o micro app está rodando na porta 8082: `curl http://localhost:8082`
-   - Confirme se as variáveis de ambiente estão corretas
-   - Verifique o port forwarding no Android: `adb reverse tcp:8082 tcp:8082`
+   - **🔴 CAUSA MAIS COMUM**: Micro apps Home ou Contas não estão rodando!
+   - **✅ SOLUÇÃO**: 
+     - Verifique se o Home está rodando na porta 9002: `curl http://localhost:9002`
+     - Verifique se o Contas está rodando na porta 9003: `curl http://localhost:9003`
+   - Confirme se as variáveis de ambiente estão corretas no arquivo `.env.development`
+   - Verifique o port forwarding no Android: 
+     ```bash
+     adb reverse tcp:9002 tcp:9002
+     adb reverse tcp:9003 tcp:9003
+     ```
 
-2. **Erro de navegação**
+2. **Tela em branco ou erro de carregamento do Home**
+   - **🔴 CAUSA**: O micro app Home não está rodando ou há erro na configuração
+   - **✅ SOLUÇÃO**: Verifique os logs do micro app Home e confirme que está expondo corretamente os componentes
+
+3. **Erro de navegação ou componentes remotos**
    - Confirme se os tipos de navegação estão corretos
-   - Verifique se a estrutura de navegadores aninhados está correta
+   - Verifique se a estrutura de navegadores aninhados está correta no módulo Home
+   - Confirme se o Contas está expondo os componentes corretos
 
 3. **Dependências não compartilhadas**
    - Verifique se as versões das dependências estão alinhadas
