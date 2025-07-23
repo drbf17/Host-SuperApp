@@ -43,7 +43,7 @@ export default env => {
         name: 'Host',
         filename: 'Host.container.js.bundle',
         remotes: {
-          Contas: `Contas@${process.env.CONTA_MINI_APP_URL}/${platform}/mf-manifest.json`,
+          // Contas: `Contas@${process.env.CONTA_MINI_APP_URL}/${platform}/mf-manifest.json`,
           Home: `Home@${process.env.HOME_MINI_APP_URL}/${platform}/mf-manifest.json`,
           Auth: `Auth@${process.env.AUTH_MINI_APP_URL}/${platform}/mf-manifest.json`,
         },
