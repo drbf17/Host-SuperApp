@@ -5,21 +5,21 @@ import ErrorBoundary from './components/ErrorBoundary';
 import Placeholder from './components/Placeholder';
 
 // Lazy load federated modules
-const HomeTabNavigator = React.lazy(() => import('Home/App'));
+const Home = React.lazy(() => import('Home/App'));
 
 export type MainStackParamList = {
-  HomeTabs: undefined;
+  HomeApp: undefined;
 };
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
 // Componente separado para evitar função inline
-const HomeTabsScreen = () => (
+const HomeRoot = () => (
   <ErrorBoundary name="Home Module">
     <React.Suspense 
       fallback={<Placeholder label="Carregando Home..." />}
     >
-      <HomeTabNavigator />
+      <Home />
     </React.Suspense>
   </ErrorBoundary>
 );
@@ -31,8 +31,8 @@ const MainNavigator = () => {
         headerShown: false,
       }}>
       <Stack.Screen
-        name="HomeTabs"
-        component={HomeTabsScreen}
+        name="HomeRoot"
+        component={HomeRoot}
       />
     </Stack.Navigator>
   );
