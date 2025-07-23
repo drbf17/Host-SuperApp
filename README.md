@@ -2,13 +2,15 @@
 
 Este é o aplicativo **Host** de uma arquitetura de SuperApp React Native, construído com [React Native](https://reactnative.dev) e [Module Federation](https://module-federation.io/) usando [@callstack/repack](https://re-pack.dev/).
 
-> **🚨 IMPORTANTE**: Para testar o Host App completo, é **obrigatório** executar os micro apps **Home** e **Contas** simultaneamente. Sem os micro apps rodando, algumas funcionalidades não estarão disponíveis.
+> **🚨 IMPORTANTE**: Para testar o Host App completo, é **obrigatório** executar os micro apps **Auth**, **Home** e **Contas** simultaneamente. Sem os micro apps rodando, algumas funcionalidades não estarão disponíveis.
 
 ## 🏗️ Arquitetura SuperApp
 
 ### Micro Frontend Architecture
 - **Host App**: Aplicativo principal que orquestra e carrega micro frontends
 - **Micro Apps**: Aplicações independentes carregadas dinamicamente
+  - `Auth`: Módulo de autenticação com login/logout, gerenciamento de sessão e controle de acesso
+    - Repositório: [https://github.com/drbf17/Auth--MicroApp](https://github.com/drbf17/Auth--MicroApp)
   - `Home`: Módulo principal com interface bancária, navegação e integração de serviços
     - Repositório: [https://github.com/drbf17/Home-Micro-App](https://github.com/drbf17/Home-Micro-App)
   - `Contas`: Micro app para funcionalidades relacionadas a conta e saldo
@@ -25,19 +27,26 @@ Este é o aplicativo **Host** de uma arquitetura de SuperApp React Native, const
 
 ### Navegação
 ```
-MainNavigator (Stack)
-├── Home (Lazy Loaded from Home Micro App)
-│   └── HomeTabNavigator (Bottom Tabs)
-│       ├── Home (Banking Dashboard)
-│       ├── Account (Account Details)
-│       └── Services (Services List + Remote Components)
-│           └── RemoteHostScreen (Loads Contas components)
+AuthProvider (from Auth Micro App)
+├── AuthState.isAuthenticated ? 
+│   ├── TRUE → MainNavigator (Stack)
+│   │   └── Home (Lazy Loaded from Home Micro App)
+│   │       └── HomeTabNavigator (Bottom Tabs)
+│   │           ├── Home (Banking Dashboard)
+│   │           ├── Account (Account Details)
+│   │           └── Services (Services List + Remote Components)
+│   │               └── RemoteHostScreen (Loads Contas components)
+│   └── FALSE → LoginComponent (from Auth Micro App)
 └── ContaServices (Direct Contas Integration)
 ```
 
 ### Principais Telas
-- **App.tsx**: Orquestrador principal com lazy loading do módulo Home
-- **Home Micro App**: Interface bancária completa com:
+- **App.tsx**: Orquestrador principal com AuthProvider e lazy loading
+- **Auth Micro App**: Sistema de autenticação completo com:
+  - **AuthProvider**: Wrapper com function-as-children pattern
+  - **LoginComponent**: Interface de login com usuários de teste
+  - **Session Management**: Zustand store com estado de autenticação
+- **Home Micro App**: Interface bancária completa (após autenticação) com:
   - **Dashboard**: Saldo, transações recentes, ações rápidas
   - **Account**: Detalhes da conta do usuário
   - **Services**: Lista de serviços bancários + componentes remotos do Contas
@@ -81,15 +90,29 @@ O projeto usa variáveis de ambiente para configurar URLs dos micro frontends:
 
 1. **Arquivo de ambiente**: `env/.env.development`
 ```bash
+AUTH_MINI_APP_URL=http://localhost:8084
 HOME_MINI_APP_URL=http://localhost:9002
 CONTA_MINI_APP_URL=http://localhost:9003
 ```
 
 2. **Configuração dos Micro Apps**
    
-   > **🔥 OBRIGATÓRIO**: Os micro apps Home e Contas devem estar rodando para que o Host funcione corretamente!
+   > **🔥 OBRIGATÓRIO**: Os micro apps Auth, Home e Contas devem estar rodando para que o Host funcione corretamente!
    
-   Para executar este projeto, você precisa configurar e executar ambos os micro apps:
+   Para executar este projeto, você precisa configurar e executar todos os micro apps:
+   
+   **Micro App Auth (Autenticação):**
+   ```bash
+   # Clone o micro app Auth
+   git clone https://github.com/drbf17/Auth--MicroApp.git
+   cd Auth--MicroApp
+   
+   # Instale as dependências
+   npm install
+   
+   # Execute o micro app na porta 8084
+   npm start
+   ```
    
    **Micro App Home (Principal):**
    ```bash
@@ -118,17 +141,19 @@ CONTA_MINI_APP_URL=http://localhost:9003
    ```
    
    **Confirme que os micro apps estão rodando**:
+   - Auth: `http://localhost:8084`
    - Home: `http://localhost:9002`
    - Contas: `http://localhost:9003`
 
 ### Executando o Projeto
 
 > **⚠️ PRÉ-REQUISITO OBRIGATÓRIO**: 
-> 1. **PRIMEIRO** execute o micro app Home na porta 9002
-> 2. **SEGUNDO** execute o micro app Contas na porta 9003  
-> 3. **DEPOIS** execute o Host App
+> 1. **PRIMEIRO** execute o micro app Auth na porta 8084
+> 2. **SEGUNDO** execute o micro app Home na porta 9002
+> 3. **TERCEIRO** execute o micro app Contas na porta 9003  
+> 4. **DEPOIS** execute o Host App
 > 
-> **Sem os micro apps Home e Contas rodando, o Host App terá funcionalidades limitadas ou não funcionará!**
+> **Sem os micro apps Auth, Home e Contas rodando, o Host App não funcionará!**
 
 #### 1. Inicie o Metro Bundler
 ```bash
