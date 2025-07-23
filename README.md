@@ -183,10 +183,10 @@ yarn ios
 ### Module Federation (rspack.config.mjs)
 ```javascript
 remotes: {
-  Home: `Home@${process.env.HOME_MINI_APP_URL}/${platform}/mf-manifest.json`,
-  Contas: `Contas@${process.env.CONTA_MINI_APP_URL}/${platform}/mf-manifest.json`,
+  Auth: 'Auth@http://localhost:8084',
+  Home: 'Home@http://localhost:9002',
+  Contas: 'Contas@http://localhost:9003'
 }
-```
 
 ### Dependências Compartilhadas
 As seguintes dependências são compartilhadas entre Host e micro apps:
@@ -196,10 +196,11 @@ As seguintes dependências são compartilhadas entre Host e micro apps:
 - React Native Bottom Tabs 0.9.0
 - Module Federation Enhanced
 
-### Configuração de Porta para Android
-Para desenvolvimento Android, configure o port forwarding:
+#### 2. Configure Port Forwarding (Android)
 ```bash
-adb reverse tcp:9002 tcp:9002  # Home micro app
+# Para acesso aos micro apps pelo dispositivo Android
+adb reverse tcp:8084 tcp:8084  # Auth micro app
+adb reverse tcp:9002 tcp:9002  # Home micro app  
 adb reverse tcp:9003 tcp:9003  # Contas micro app
 ```
 
@@ -260,27 +261,33 @@ const handleNavigateToContaServices = () => {
 ### Problemas Comuns
 
 1. **Module Federation não carrega / Erro "Element type is invalid"**
-   - **🔴 CAUSA MAIS COMUM**: Micro apps Home ou Contas não estão rodando!
+   - **🔴 CAUSA MAIS COMUM**: Micro apps Auth, Home ou Contas não estão rodando!
    - **✅ SOLUÇÃO**: 
+     - Verifique se o Auth está rodando na porta 8084: `curl http://localhost:8084`
      - Verifique se o Home está rodando na porta 9002: `curl http://localhost:9002`
      - Verifique se o Contas está rodando na porta 9003: `curl http://localhost:9003`
    - Confirme se as variáveis de ambiente estão corretas no arquivo `.env.development`
    - Verifique o port forwarding no Android: 
      ```bash
+     adb reverse tcp:8084 tcp:8084
      adb reverse tcp:9002 tcp:9002
      adb reverse tcp:9003 tcp:9003
      ```
 
-2. **Tela em branco ou erro de carregamento do Home**
+2. **Erro de autenticação ou componente LoginComponent não encontrado**
+   - **🔴 CAUSA**: O micro app Auth não está rodando ou há erro na configuração
+   - **✅ SOLUÇÃO**: Verifique os logs do micro app Auth e confirme que está expondo corretamente os componentes de autenticação
+
+3. **Tela em branco ou erro de carregamento do Home**
    - **🔴 CAUSA**: O micro app Home não está rodando ou há erro na configuração
    - **✅ SOLUÇÃO**: Verifique os logs do micro app Home e confirme que está expondo corretamente os componentes
 
-3. **Erro de navegação ou componentes remotos**
+4. **Erro de navegação ou componentes remotos**
    - Confirme se os tipos de navegação estão corretos
    - Verifique se a estrutura de navegadores aninhados está correta no módulo Home
    - Confirme se o Contas está expondo os componentes corretos
 
-3. **Dependências não compartilhadas**
+5. **Dependências não compartilhadas**
    - Verifique se as versões das dependências estão alinhadas
    - Confirme a configuração de `shared` no rspack.config.mjs
 
