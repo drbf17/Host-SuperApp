@@ -98,6 +98,11 @@ export default env => {
             eager: true,
             requiredVersion: '0.9.0',
           },
+          'react-native-webview': {
+            singleton: true,
+            eager: true,
+            requiredVersion: '^13.15.0',
+          },
         },
       }),
       new rspack.IgnorePlugin({
