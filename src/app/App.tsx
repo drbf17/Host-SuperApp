@@ -9,48 +9,54 @@ import { NavigationContainer } from '@react-navigation/native';
 import MainNavigator from './navigation/MainNavigator';
 import ErrorBoundary from './navigation/components/ErrorBoundary';
 import Placeholder from './navigation/components/Placeholder';
+import NativeWebview from '../specs/NativeWebview';
 
 // Lazy load federated modules
 const AuthProvider = React.lazy(() => import('Auth/AuthProvider'));
 const LoginComponent = React.lazy(() => import('Auth/LoginComponent'));
 
 const App = () => {
-  return (
-    <ErrorBoundary name="Host App">
-      <NavigationContainer>
-        <React.Suspense 
-          fallback={<Placeholder label="Carregando aplicação..." />}
-        >
-          <ErrorBoundary name="Auth Provider">
-            <AuthProvider>
-              {(authState: any) => {
-                // Se estiver carregando, mostra placeholder
-                if (authState.isLoading) {
-                  return <Placeholder label="Verificando autenticação..." />;
-                }
-                
-                // Se não estiver autenticado, mostra tela de login
-                if (!authState.isAuthenticated) {
-                  return (
-                    <ErrorBoundary name="Login Screen">
-                      <LoginComponent />
+
+    React.useEffect(() => {
+        const storedValue = NativeWebview?.open();
+    }, []);
+
+    return (
+        <ErrorBoundary name="Host App">
+            <NavigationContainer>
+                <React.Suspense
+                    fallback={<Placeholder label="Carregando aplicação..." />}
+                >
+                    <ErrorBoundary name="Auth Provider">
+                        <AuthProvider>
+                            {(authState: any) => {
+                                // Se estiver carregando, mostra placeholder
+                                if (authState.isLoading) {
+                                    return <Placeholder label="Verificando autenticação..." />;
+                                }
+
+                                // Se não estiver autenticado, mostra tela de login
+                                if (!authState.isAuthenticated) {
+                                    return (
+                                        <ErrorBoundary name="Login Screen">
+                                            <LoginComponent />
+                                        </ErrorBoundary>
+                                    );
+                                }
+
+                                // Se estiver autenticado, mostra o app principal
+                                return (
+                                    <ErrorBoundary name="Main Navigation">
+                                        <MainNavigator />
+                                    </ErrorBoundary>
+                                );
+                            }}
+                        </AuthProvider>
                     </ErrorBoundary>
-                  );
-                }
-                
-                // Se estiver autenticado, mostra o app principal
-                return (
-                  <ErrorBoundary name="Main Navigation">
-                    <MainNavigator />
-                  </ErrorBoundary>
-                );
-              }}
-            </AuthProvider>
-          </ErrorBoundary>
-        </React.Suspense>
-      </NavigationContainer>
-    </ErrorBoundary>
-  );
+                </React.Suspense>
+            </NavigationContainer>
+        </ErrorBoundary>
+    );
 };
 
 export default App;
