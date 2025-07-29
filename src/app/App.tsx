@@ -18,7 +18,7 @@ const LoginComponent = React.lazy(() => import('Auth/LoginComponent'));
 const App = () => {
 
     React.useEffect(() => {
-        const storedValue = NativeWebview?.open();
+        const storedValue = NativeWebview?.open('https://re-pack.dev/');
     }, []);
 
     return (
