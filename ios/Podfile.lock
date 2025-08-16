@@ -1783,6 +1783,30 @@ PODS:
     - React-logger (= 0.79.5)
     - React-perflogger (= 0.79.5)
     - React-utils (= 0.79.5)
+  - ReactNativeWebview (0.2.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNScreens (4.13.1):
     - DoubleConversion
     - glog
@@ -1921,6 +1945,7 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - "ReactNativeWebview (from `../node_modules/@drbf17/react-native-webview`)"
   - RNScreens (from `../node_modules/react-native-screens`)
   - SDWebImage
   - SDWebImageSVGCoder
@@ -2081,6 +2106,8 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  ReactNativeWebview:
+    :path: "../node_modules/@drbf17/react-native-webview"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   Yoga:
@@ -2160,6 +2187,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: f3e842e6cb5a825b6918a74a38402ba1409411f8
   ReactCodegen: 6cb6e0d0b52471abc883541c76589d1c367c64c7
   ReactCommon: 1ab5451fc5da87c4cc4c3046e19a8054624ca763
+  ReactNativeWebview: a97fb273e02cdd65c12292f2ef3d2a2cf17c5b77
   RNScreens: 7e56b051227a1a11c3068849d1a9a5dd457537df
   SDWebImage: f29024626962457f3470184232766516dee8dfea
   SDWebImageSVGCoder: 8e10c8f6cc879c7dfb317b284e13dd589379f01c
